@@ -1,10 +1,10 @@
-import cgi
 import json
 import mimetypes
 import re
-import shutil
 import uuid
 from datetime import datetime
+from email.parser import BytesParser
+from email.policy import default
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -43,21 +43,12 @@ class ExcelWebsiteHandler(SimpleHTTPRequestHandler):
             self.send_json({"error": "The file is too large. Maximum size is 10 MB."}, HTTPStatus.BAD_REQUEST)
             return
 
-        form = cgi.FieldStorage(
-            fp=self.rfile,
-            headers=self.headers,
-            environ={
-                "REQUEST_METHOD": "POST",
-                "CONTENT_TYPE": self.headers.get("Content-Type"),
-            },
-        )
-
-        uploaded = form["workbook"] if "workbook" in form else None
-        if uploaded is None or not uploaded.filename:
+        uploaded = parse_multipart_upload(self.headers, self.rfile.read(content_length), "workbook")
+        if uploaded is None:
             self.send_json({"error": "No Excel file was uploaded."}, HTTPStatus.BAD_REQUEST)
             return
 
-        original_name = safe_filename(uploaded.filename)
+        original_name = safe_filename(uploaded["filename"])
         if Path(original_name).suffix.lower() != ".xlsx":
             self.send_json({"error": "Only .xlsx files are supported."}, HTTPStatus.BAD_REQUEST)
             return
@@ -67,7 +58,7 @@ class ExcelWebsiteHandler(SimpleHTTPRequestHandler):
         stored_path = ORIGINALS_DIR / f"{file_id}-{original_name}"
 
         with stored_path.open("wb") as output:
-            shutil.copyfileobj(uploaded.file, output)
+            output.write(uploaded["content"])
 
         if stored_path.stat().st_size > MAX_UPLOAD_BYTES:
             stored_path.unlink(missing_ok=True)
@@ -150,6 +141,33 @@ def ensure_storage():
 def safe_filename(filename):
     name = Path(filename).name
     return re.sub(r"[^a-zA-Z0-9._-]", "_", name)
+
+
+def parse_multipart_upload(headers, body, field_name):
+    content_type = headers.get("Content-Type")
+    if not content_type or "multipart/form-data" not in content_type:
+        return None
+
+    message_bytes = (
+        f"Content-Type: {content_type}\r\n"
+        "MIME-Version: 1.0\r\n\r\n"
+    ).encode("utf-8") + body
+    message = BytesParser(policy=default).parsebytes(message_bytes)
+
+    for part in message.iter_parts():
+        if part.get_param("name", header="content-disposition") != field_name:
+            continue
+
+        filename = part.get_filename()
+        if not filename:
+            return None
+
+        return {
+            "filename": filename,
+            "content": part.get_payload(decode=True) or b"",
+        }
+
+    return None
 
 
 def find_original_file(file_id):
