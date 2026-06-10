@@ -1,0 +1,9 @@
+node_modules/
+uploads/
+npm-debug.log*
+.env
+server.log
+server.err.log
+__pycache__/
+*.pyc
+*.xlsx

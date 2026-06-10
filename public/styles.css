@@ -1,0 +1,219 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+  --border: #c8ced8;
+  --header: #eef2f6;
+  --header-active: #dbeafe;
+  --accent: #187346;
+  --accent-dark: #125c38;
+  --text: #172033;
+  --muted: #5f6b7a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background: #f6f8fb;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-button,
+button {
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button:disabled {
+  border-color: #a9b2bf;
+  background: #a9b2bf;
+  cursor: not-allowed;
+}
+
+.upload-button input {
+  display: none;
+}
+
+.formula-bar {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  min-height: 42px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+#selectedAddress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+#formulaInput {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  padding: 0 12px;
+  background: #ffffff;
+}
+
+#formulaInput:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.message {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.grid-container {
+  overflow: auto;
+  background: #ffffff;
+}
+
+.spreadsheet {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
+}
+
+.spreadsheet th,
+.spreadsheet td {
+  border: 1px solid var(--border);
+  height: 26px;
+  min-width: 96px;
+  max-width: 360px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.corner,
+.column-header,
+.row-header {
+  position: sticky;
+  background: var(--header);
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  z-index: 2;
+}
+
+.corner {
+  left: 0;
+  top: 0;
+  width: 48px;
+  min-width: 48px;
+  z-index: 4;
+}
+
+.column-header {
+  top: 0;
+  height: 28px;
+  z-index: 3;
+}
+
+.row-header {
+  left: 0;
+  width: 48px;
+  min-width: 48px;
+  z-index: 2;
+}
+
+.cell {
+  background: #ffffff;
+  vertical-align: middle;
+}
+
+.cell-input {
+  width: 100%;
+  height: 100%;
+  min-height: 26px;
+  border: 0;
+  padding: 4px 7px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+
+.cell-input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: #ffffff;
+}
+
+.is-selected {
+  background: #ecfdf3;
+}
+
+@media (max-width: 680px) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .upload-button,
+  button {
+    flex: 1;
+    text-align: center;
+  }
+}

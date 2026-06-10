@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Excel Website Demo</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar">
+        <div>
+          <h1>Excel Website Demo</h1>
+          <p id="workbookStatus">Upload an .xlsx file up to 10 MB.</p>
+        </div>
+        <div class="actions">
+          <label class="upload-button">
+            <input id="fileInput" type="file" accept=".xlsx">
+            Upload
+          </label>
+          <button id="downloadButton" type="button" disabled>Download</button>
+        </div>
+      </section>
+
+      <section class="formula-bar" aria-label="Selected cell">
+        <span id="selectedAddress">A1</span>
+        <input id="formulaInput" type="text" disabled>
+      </section>
+
+      <section id="message" class="message" hidden></section>
+      <section id="gridContainer" class="grid-container" aria-label="Spreadsheet grid"></section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
