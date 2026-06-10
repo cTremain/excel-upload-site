@@ -26,6 +26,13 @@ class ExcelWebsiteHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(PUBLIC_DIR), **kwargs)
 
+    def do_GET(self):
+        if self.path.startswith("/api/files/"):
+            self.handle_file_download()
+            return
+
+        super().do_GET()
+
     def do_POST(self):
         if self.path == "/api/upload":
             self.handle_upload()
@@ -112,7 +119,24 @@ class ExcelWebsiteHandler(SimpleHTTPRequestHandler):
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         edited_path = EDITED_DIR / f"{file_id}-{timestamp}-edited.xlsx"
         workbook.save(edited_path)
-        self.send_file(edited_path, f"edited-{original_path.name.replace(file_id + '-', '')}")
+        download_name = f"edited-{original_path.name.replace(file_id + '-', '')}"
+        self.send_json(
+            {
+                "downloadUrl": f"/api/files/{edited_path.name}",
+                "filename": download_name,
+            }
+        )
+
+    def handle_file_download(self):
+        filename = safe_filename(self.path.removeprefix("/api/files/"))
+        path = EDITED_DIR / filename
+
+        if not path.exists() or path.parent != EDITED_DIR:
+            self.send_json({"error": "Download file was not found."}, HTTPStatus.NOT_FOUND)
+            return
+
+        original_name = re.sub(r"^[0-9a-f-]+-\d+-", "", filename)
+        self.send_file(path, original_name)
 
     def send_json(self, payload, status=HTTPStatus.OK):
         body = json.dumps(payload).encode("utf-8")

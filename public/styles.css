@@ -119,6 +119,21 @@ button:disabled {
   color: #9a3412;
 }
 
+.download-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #ecfdf3;
+  color: #125c38;
+}
+
+.download-notice a {
+  color: #0f5132;
+  font-weight: 700;
+}
+
 .grid-container {
   overflow: auto;
   background: #ffffff;

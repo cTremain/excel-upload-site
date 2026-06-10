@@ -5,6 +5,8 @@ const message = document.querySelector("#message");
 const workbookStatus = document.querySelector("#workbookStatus");
 const selectedAddress = document.querySelector("#selectedAddress");
 const formulaInput = document.querySelector("#formulaInput");
+const downloadNotice = document.querySelector("#downloadNotice");
+const latestDownloadLink = document.querySelector("#latestDownloadLink");
 
 let currentFileId = null;
 let currentWorksheet = null;
@@ -17,6 +19,7 @@ fileInput.addEventListener("change", async (event) => {
   if (!file) return;
 
   clearMessage();
+  hideDownloadNotice();
   setBusy(true, "Uploading workbook...");
 
   try {
@@ -55,6 +58,7 @@ downloadButton.addEventListener("click", async () => {
   if (!currentFileId || !currentWorksheet) return;
 
   clearMessage();
+  hideDownloadNotice();
   setBusy(true, "Preparing download...");
 
   try {
@@ -70,15 +74,18 @@ downloadButton.addEventListener("click", async () => {
       throw new Error(result.error || "Download failed.");
     }
 
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
+    const result = await response.json();
+    if (!result.downloadUrl) {
+      throw new Error("The server did not return a download link.");
+    }
+
+    showDownloadNotice(result.downloadUrl, result.filename || "edited-workbook.xlsx");
     const link = document.createElement("a");
-    link.href = url;
-    link.download = "edited-workbook.xlsx";
+    link.href = result.downloadUrl;
+    link.download = result.filename || "edited-workbook.xlsx";
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
     workbookStatus.textContent = `${currentWorkbookLabel} - download ready`;
   } catch (error) {
     showMessage(error.message);
@@ -201,4 +208,16 @@ function showMessage(text) {
 function clearMessage() {
   message.textContent = "";
   message.hidden = true;
+}
+
+function showDownloadNotice(url, filename) {
+  latestDownloadLink.href = url;
+  latestDownloadLink.download = filename;
+  latestDownloadLink.textContent = `Open ${filename}`;
+  downloadNotice.hidden = false;
+}
+
+function hideDownloadNotice() {
+  downloadNotice.hidden = true;
+  latestDownloadLink.removeAttribute("href");
 }
