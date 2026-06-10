@@ -8,6 +8,7 @@ const formulaInput = document.querySelector("#formulaInput");
 
 let currentFileId = null;
 let currentWorksheet = null;
+let currentWorkbookLabel = "Upload an .xlsx file up to 10 MB.";
 let selectedInput = null;
 const edits = new Map();
 
@@ -34,9 +35,10 @@ fileInput.addEventListener("change", async (event) => {
 
     currentFileId = result.fileId;
     currentWorksheet = result.worksheet;
+    currentWorkbookLabel = `${result.filename} - ${result.worksheet.name}`;
     edits.clear();
     renderWorksheet(result.worksheet);
-    workbookStatus.textContent = `${result.filename} - ${result.worksheet.name}`;
+    workbookStatus.textContent = currentWorkbookLabel;
     downloadButton.disabled = false;
     formulaInput.disabled = true;
     formulaInput.value = "";
@@ -77,6 +79,7 @@ downloadButton.addEventListener("click", async () => {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+    workbookStatus.textContent = `${currentWorkbookLabel} - download ready`;
   } catch (error) {
     showMessage(error.message);
   } finally {
@@ -185,6 +188,8 @@ function setBusy(isBusy, text) {
   downloadButton.disabled = isBusy || !currentFileId;
   if (text) {
     workbookStatus.textContent = text;
+  } else if (!isBusy && currentFileId && !workbookStatus.textContent.includes("download ready")) {
+    workbookStatus.textContent = currentWorkbookLabel;
   }
 }
 
